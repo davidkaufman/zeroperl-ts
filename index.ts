@@ -170,8 +170,10 @@ async function loadWasmSource(fetchFn?: FetchLike): Promise<ArrayBuffer> {
         const response = await f(zeroperl);
         moduleData = await response.arrayBuffer();
     } else {
-        const wasmPath =
-            typeof zeroperl === "string" ? zeroperl : "./zeroperl.wasm";
+        // Resolve the WASM path relative to this module using import.meta.url
+        const wasmUrl = new URL(zeroperl, import.meta.url);
+        const wasmPath = wasmUrl.pathname;
+        console.log("Loading WASM from path:", wasmPath);
 
         //@ts-expect-error Deno
         if (typeof Deno !== "undefined") {
