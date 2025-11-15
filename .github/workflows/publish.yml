@@ -1,0 +1,36 @@
+name: Publish to NPM
+on:
+  push:
+    tags:
+      - 'v*'
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      id-token: write
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+      
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24.x'
+          registry-url: 'https://registry.npmjs.org'
+      
+      - name: Update npm
+        run: npm install -g npm@latest
+      
+      - name: Install dependencies
+        run: npm ci
+      
+      - uses: oven-sh/setup-bun@v2
+      
+      - name: Test package
+        run: bun test
+      
+      - name: Build package
+        run: bun run build
+      
+      - name: Publish package to NPM
+        run: npm publish --access public --tag latest
